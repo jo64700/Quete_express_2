@@ -34,10 +34,10 @@ const getUsersById = (req, res) => {
 };
 
 const postUsers = (req, res) => {
-    const { firstname, lastname, email, city, language, title, director, year, color, duratio } = req.body;
+    const { firstname, lastname, email, city, language } = req.body;
     database.query(
       "INSERT INTO users(firstname, lastname, email, city, language) VALUE (?, ?, ?, ?)",
-      [firstname, lastname, email, city, language, title, director, year, color, duratio]
+      [firstname, lastname, email, city, language]
     )
     .then(([result]) => {
       res.location(`/api/users/${result.insertId}`).sendStatus(201);
@@ -48,8 +48,31 @@ const postUsers = (req, res) => {
     });
   };
 
+  //Permet de rajouter des données aavec POSTMAN
+const updateUsers = (req, res) => {
+    const id = parseInt(req.params.id);
+    const { firstname, lastname, email, city, language } = req.body;
+    database
+      .query(
+      "UPDATE users SET firstname = ?, lastname = ?, email = ?, city = ?, language = ? where id = ?",
+      [firstname, lastname, email, city, language, id]
+      )
+      .then(([result]) => {
+        if (result.affectedRows === 0) {
+          res.status(404).send("Not Found");
+        } else {
+          res.sendStatus(204);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send("Error editing the users");
+      });
+  };
+
 module.exports = {
     getUsers,
     getUsersById,
     postUsers,
+    updateUsers,
 };
