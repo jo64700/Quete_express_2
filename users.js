@@ -48,7 +48,7 @@ const postUsers = (req, res) => {
     });
   };
 
-  //Permet de rajouter des données aavec POSTMAN
+  //Permet de remplacer des données avec POSTMAN
 const updateUsers = (req, res) => {
     const id = parseInt(req.params.id);
     const { firstname, lastname, email, city, language } = req.body;
@@ -69,6 +69,7 @@ const updateUsers = (req, res) => {
         res.status(500).send("Error editing the users");
       });
   };
+
 
 module.exports = {
     getUsers,
