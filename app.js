@@ -44,6 +44,10 @@ app.put("/api/movies/:id",validateMovie, movieHandlers.updateMovie);
 app.post("/api/users", validateUser, users.postUsers);
 app.put("/api/users/:id", validateUser, users.updateUsers);
 
+//app.delete permet de supprimer une information
+app.delete("/api/movies/:id", movieHandlers.deleteMovie);
+app.delete("/api/users/:id", users.deleteUser)
+
 
 /*
 app.post(
