@@ -53,10 +53,10 @@ app.delete("/api/users/:id", users.deleteUser)
 app.post(
   '/api/users',
 
-  //Vérification d'email valide
+//Vérification d'email valide
   body('email').isEmail(),
 
-  //255 Caractère MAX
+//255 Caractère MAX
   body('firstname').isLength({ max: 255 }),
 );
 
