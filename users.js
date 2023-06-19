@@ -1,5 +1,7 @@
-const database = require("./database")
+const argon2 = require("argon2");
 
+const database = require("./database");
+const { hashPassword } = require("./auth");
 const getUsers = (req, res) => {
     database
     .query("select * from users")
@@ -34,28 +36,29 @@ const getUsersById = (req, res) => {
 };
 
 const postUsers = (req, res) => {
-    const { firstname, lastname, email, city, language } = req.body;
+    const { firstname, lastname, email, city, language, hashedPassword} = req.body;
     database.query(
-      "INSERT INTO users(firstname, lastname, email, city, language) VALUE (?, ?, ?, ?)",
-      [firstname, lastname, email, city, language]
+      "INSERT INTO users(firstname, lastname, email, city, language, hashedPassword) VALUE (?, ?, ?, ?, ?, ?)",
+      [firstname, lastname, email, city, language, hashedPassword]
     )
+
     .then(([result]) => {
       res.location(`/api/users/${result.insertId}`).sendStatus(201);
     })
     .catch((err) => {
       console.error(err);
-      res.status(500).send("Error saving the movie");
+      res.status(500).send("Error saving the user");
     });
   };
 
   //Permet de remplacer des données avec POSTMAN
 const updateUsers = (req, res) => {
     const id = parseInt(req.params.id);
-    const { firstname, lastname, email, city, language } = req.body;
+    const { firstname, lastname, email, city, language, hashedPassword } = req.body;
     database
       .query(
-      "UPDATE users SET firstname = ?, lastname = ?, email = ?, city = ?, language = ? where id = ?",
-      [firstname, lastname, email, city, language, id]
+      "UPDATE users SET firstname = ?, lastname = ?, email = ?, city = ?, language = ?, hashedPassword = ? where id = ?",
+      [firstname, lastname, email, city, language, hashedPassword, id]
       )
       .then(([result]) => {
         if (result.affectedRows === 0) {
@@ -87,11 +90,50 @@ const updateUsers = (req, res) => {
     });
 };
 
+//Filtrer entre city et language
+const getUser = (req, res) => {
+  const initialSql = "select * from users";
+  const where = [];
+
+  if (req.query.city != null) {
+    where.push({
+      column: "city",
+      value: req.query.city,
+      operator: "=",
+    });
+  }
+  if (req.query.language != null) {
+    where.push({
+      column: "language",
+      value: req.query.language,
+      operator: "=",
+    });
+  }
+
+  database
+    .query(
+      where.reduce(
+        (sql, { column, operator }, index) =>
+          `${sql} ${index === 0 ? "where" : "and"} ${column} ${operator} ?`,
+        initialSql
+      ),
+      where.map(({ value }) => value)
+    )
+    .then(([users]) => {
+      res.json(users);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error retrieving data from database");
+    });
+};
+
 
 module.exports = {
     getUsers,
     getUsersById,
     postUsers,
     updateUsers,
-    deleteUser
+    deleteUser,
+    getUser,
 };

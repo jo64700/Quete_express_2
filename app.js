@@ -16,13 +16,12 @@ const welcome = (req, res) => {
 };
 
 
-
 app.get("/", welcome);
 
 const movieHandlers = require("./movieHandlers");
 const users = require("./users");
 const { validateMovie, validateUser } = require("./validators");
-//const { body, validationResult } = require('express-validator')
+const { hashPassword } = require("./auth");
 
 
 //app.get sert à regarder se qu'il y as
@@ -33,54 +32,18 @@ app.get("/api/users/:id", users.getUsersById);
 
 //app.post sert à poster de nouvelles infos 
 app.post("/api/movies", movieHandlers.postMovie);
-app.post("api/users", users.postUsers);
+app.post("/api/users", validateUser, hashPassword, users.postUsers);
 app.post("api/movies", validateMovie, movieHandlers.postMovie);
+app.post("/api/movies", validateMovie, movieHandlers.postMovie);
+
 
 //app.put sert à Update de nouvelles infos
-
-
-app.post("/api/movies", validateMovie, movieHandlers.postMovie);
 app.put("/api/movies/:id",validateMovie, movieHandlers.updateMovie);
-app.post("/api/users", validateUser, users.postUsers);
-app.put("/api/users/:id", validateUser, users.updateUsers);
+app.put("/api/users/:id", validateUser, hashPassword, users.updateUsers);
 
 //app.delete permet de supprimer une information
 app.delete("/api/movies/:id", movieHandlers.deleteMovie);
 app.delete("/api/users/:id", users.deleteUser)
-
-
-/*
-app.post(
-  '/api/users',
-
-//Vérification d'email valide
-  body('email').isEmail(),
-
-//255 Caractère MAX
-  body('firstname').isLength({ max: 255 }),
-);
-
-//app.put sert à update une donnée existante
-app.put("/api/users/:id", users.updateUsers);
-
-
-app.post(
-  '/api/movies',
-
-  //Vérification d'email valide
-  body('email').isEmail(),
-
-  //255 Caractère MAX
-  body('firstname').isLength({ max: 255 }),
-);
-
-//app.put sert à update une donnée existante
-app.put("/api/movies/:id", movies.updateMovies);
-*/
-
-
-
-
 
 
 //Sert à écouter les routes

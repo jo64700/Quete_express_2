@@ -83,9 +83,12 @@ const validateMovie = (req, res, next) => {
 
 const validateUser = (req, res, next) => {
   const schema = Joi.object({
-    name: Joi.string().required(),
+    firstname: Joi.string().required(),
+    lastname: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
+    city: Joi.string(),
+    language: Joi.string(),
   });
 
   const { error } = schema.validate(req.body);
